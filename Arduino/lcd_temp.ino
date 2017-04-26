@@ -15,28 +15,32 @@ byte tempChar[8] = {0b00110,0b01001,0b01001,0b00110,0b00000,0b00000,0b00000,0b00
 // Количество итераций (не надо, убрать)
 int x = 0;
 
-
+// Инициализация прибора
 void setup() {
-  lcd.begin(16, 2);
-  lcd.clear();
-  lcd.createChar(0, tempChar);
-  lcd.setCursor(0,0); // col, row
-  lcd.print("DHT11 + LCD Test");
-  lcd.setCursor(0,1); // col, row
-  lcd.print("tim4dev.com");
-  delay(5000);
+  lcd.begin(16, 2);	// Инициализация
+  lcd.clear();		// Очищаем экран
+  lcd.createChar(0, tempChar);		// Добавим знак градуса
+  lcd.setCursor(0,0); 				// Установим курсор на начало первой строки
+  lcd.print("Temperature sensor");	//Выведем приветствие
+  lcd.setCursor(0,1);  				// Установим курсор на начало второй строки
+  lcd.print("IOS UB RAS");			//Выведем приветствие
+  delay(2000);						// Подождём 2 секунды
 }
 
+//	Цикл работы
 void loop() 
 {
-    lcd.clear();
-    x++;
-    int chk = DHT11.read(DHT11PIN);
+    // Очистим экран
+	lcd.clear();
+    x++;	// Номер измерения
+    int chk = DHT11.read(DHT11PIN);	// Считаем значение
  
-    lcd.setCursor(0,0); // col, row
+    lcd.setCursor(0,0); // Установим курсор на начало первой строки
+	
+	// Получим коды ошибок DHT11
     switch (chk)
     {
-        case DHTLIB_OK: 	
+        case DHTLIB_OK: 	// Если всё хорошо – продолжим, в противном случае напишем об ошибке
             break;
         case DHTLIB_ERROR_CHECKSUM: 
             lcd.print("Checksum error"); 
@@ -55,66 +59,13 @@ void loop()
             break;
     }
 
-    int i;
-    for (i = 0; i < 4; i++) {
-        lcd.clear();
-        lcd.setCursor(0,0); // col, row
-        lcd.print("Temp "); 
-        lcd.print((int)DHT11.temperature); 
-        lcd.write((byte)0);
-        lcd.print("C  ("); lcd.print(x); lcd.print(")"); 
-  
-        lcd.setCursor(0,1); // col, row
-        lcd.print("Humidity ");  lcd.print((int)DHT11.humidity);  lcd.print("%   ");
-        
-        delay(10000);
-        
-        lcd.clear();
-        lcd.setCursor(0,0); // col, row
-        lcd.print("DewPoint "); lcd.print(dewPoint(DHT11.temperature, DHT11.humidity));
-        lcd.write((byte)0); lcd.print("C");
-    
-        lcd.setCursor(0,1); // col, row
-        lcd.print("DP Fast "); lcd.print(dewPointFast(DHT11.temperature, DHT11.humidity));
-        lcd.write((byte)0); lcd.print("C ");
-        
-        delay(10000);
-    }
-}
+    lcd.clear();	// Очищаем экран
+	lcd.setCursor(0,0); // Установим курсор на начало первой строки
+	lcd.print("Temp "); lcd.print((int)DHT11.temperature); lcd.write((byte)0);	// Напишем температуру
 
-
-
-// dewPoint function NOAA
-// reference (1) : http://wahiduddin.net/calc/density_algorithms.htm
-// reference (2) : http://www.colorado.edu/geography/weather_station/Geog_site/about.htm
-//
-double dewPoint(double celsius, double humidity)
-{
-	// (1) Saturation Vapor Pressure = ESGG(T)
-	double RATIO = 373.15 / (273.15 + celsius);
-	double RHS = -7.90298 * (RATIO - 1);
-	RHS += 5.02808 * log10(RATIO);
-	RHS += -1.3816e-7 * (pow(10, (11.344 * (1 - 1/RATIO ))) - 1) ;
-	RHS += 8.1328e-3 * (pow(10, (-3.49149 * (RATIO - 1))) - 1) ;
-	RHS += log10(1013.246);
-
-        // factor -3 is to adjust units - Vapor Pressure SVP * humidity
-	double VP = pow(10, RHS - 3) * humidity;
-
-        // (2) DEWPOINT = F(Vapor Pressure)
-	double T = log(VP/0.61078);   // temp var
-	return (241.88 * T) / (17.558 - T);
-}
-
-// delta max = 0.6544 wrt dewPoint()
-// 6.9 x faster than dewPoint()
-// reference: http://en.wikipedia.org/wiki/Dew_point
-double dewPointFast(double celsius, double humidity)
-{
-	double a = 17.271;
-	double b = 237.7;
-	double temp = (a * celsius) / (b + celsius) + log(humidity*0.01);
-	double Td = (b * temp) / (a - temp);
-	return Td;
+	lcd.setCursor(0,1); // Установим курсор на начало второй строки
+	lcd.print("Humidity ");  lcd.print((int)DHT11.humidity);  lcd.print("%   "); 	// Напишем влажность
+	
+	delay(5000);
 }
 
