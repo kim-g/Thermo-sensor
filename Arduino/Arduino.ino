@@ -17,6 +17,10 @@ byte tempChar[8] = {0b00110,0b01001,0b01001,0b00110,0b00000,0b00000,0b00000,0b00
 byte m_Char[8] = {0b00000,  0b00000,  0b10001,  0b11011,  0b10101,  0b10001,  0b10001,  0b00000};
 byte p_Char[8] = {0b00000,  0b00000,  0b11111,  0b10001,  0b10001,  0b10001,  0b10001,  0b00000};
 byte l_Char[8] = {0b00000,  0b00000,  0b01111,  0b01001,  0b01001,  0b01001,  0b10001,  0b00000};
+byte I_Char[8] = {0b10001,0b10001,0b10001,0b10011,0b10101,0b11001,0b10001,0b00000};
+byte Y_Char[8] = {0b10001,0b10001,0b10001,0b01111,0b00001,0b10001,0b01110,0b00000};
+byte r_Char[8] = {0b00000,0b00000,0b11110,0b10001,0b10001,0b11110,0b10000,0b10000};
+byte cube_Char[8] = {0b00100,0b01010,0b10001,0b11011,0b10101,0b10101,0b01010,0b00100};
 
 int LastUpdate = -10000;
 bool Separator = true;
@@ -28,11 +32,15 @@ void setup() {
   lcd.createChar(1, m_Char);    // Добавим знак 'м'
   lcd.createChar(2, p_Char);    // Добавим знак 'п'
   lcd.createChar(3, l_Char);    // Добавим знак 'л'
+  lcd.createChar(4, I_Char);    // Добавим знак 'И'
+  lcd.createChar(5, Y_Char);    // Добавим знак 'У'
+  lcd.createChar(6, r_Char);    // Добавим знак 'р'
+  lcd.createChar(7, cube_Char);    // Добавим знак кубика
   lcd.setCursor(0,0); 				// Установим курсор на начало первой строки
-  lcd.print("Temperature sen.");	//Выведем приветствие
+  lcd.print("CEHCOP t");lcd.write((byte)0); lcd.print(" ");lcd.write((byte)4); lcd.print(" B");lcd.write((byte)3); lcd.print(".");	//Выведем приветствие
   lcd.setCursor(0,1);  				// Установим курсор на начало второй строки
-  lcd.print("   IOS UB RAS   ");			//Выведем приветствие
-  delay(2000);						// Подождём 2 секунды
+  lcd.print(" ");lcd.write((byte)7);lcd.print(" ");lcd.write((byte)4);lcd.print("OC ");lcd.write((byte)5);lcd.write((byte)6);lcd.print("O PAH  ");			//Выведем приветствие
+  delay(5000);						// Подождём 2 секунды
   lcd.clear();						// Очищаем экран
 }
 
