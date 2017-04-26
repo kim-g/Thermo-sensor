@@ -14,6 +14,9 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);	// Экран (в скобках пины �
 // Custom Character Generator for HD44780 LCD Modules
 // http://omerk.github.io/lcdchargen/
 byte tempChar[8] = {0b00110,0b01001,0b01001,0b00110,0b00000,0b00000,0b00000,0b00000};
+byte m_Char[8] = {0b00000,  0b00000,  0b10001,  0b11011,  0b10101,  0b10001,  0b10001,  0b00000};
+byte p_Char[8] = {0b00000,  0b00000,  0b11111,  0b10001,  0b10001,  0b10001,  0b10001,  0b00000};
+byte l_Char[8] = {0b00000,  0b00000,  0b01111,  0b01001,  0b01001,  0b01001,  0b10001,  0b00000};
 
 int LastUpdate = -10000;
 bool Separator = true;
@@ -22,10 +25,13 @@ void setup() {
   lcd.begin(16, 2);	// Инициализация
   lcd.clear();		// Очищаем экран
   lcd.createChar(0, tempChar);		// Добавим знак градуса
+  lcd.createChar(1, m_Char);    // Добавим знак 'м'
+  lcd.createChar(2, p_Char);    // Добавим знак 'п'
+  lcd.createChar(3, l_Char);    // Добавим знак 'л'
   lcd.setCursor(0,0); 				// Установим курсор на начало первой строки
-  lcd.print("Temperature sensor");	//Выведем приветствие
+  lcd.print("Temperature sen.");	//Выведем приветствие
   lcd.setCursor(0,1);  				// Установим курсор на начало второй строки
-  lcd.print("IOS UB RAS");			//Выведем приветствие
+  lcd.print("   IOS UB RAS   ");			//Выведем приветствие
   delay(2000);						// Подождём 2 секунды
   lcd.clear();						// Очищаем экран
 }
@@ -78,10 +84,10 @@ void Temp_Hum_Show(int Col, int Row)
 
     lcd.clear();	// Очищаем экран
 	lcd.setCursor(Col, Row); // Установим курсор на начало первой строки
-	lcd.print("Temp "); lcd.print((int)DHT11.temperature+TEMP_CORR); lcd.write((byte)0); lcd.print(" ");	// Напишем температуру
+	lcd.print("Te");lcd.write((byte)1);lcd.write((byte)2);lcd.print(" "); lcd.print((int)DHT11.temperature+TEMP_CORR); lcd.write((byte)0); lcd.print(" ");	// Напишем температуру
 
 	lcd.setCursor(Col + 9, Row); // Установим курсор на десятый символ первой строки
-	lcd.print("H. ");  lcd.print((int)DHT11.humidity+HUM_CORR);  lcd.print("% "); 	// Напишем влажность
+	lcd.print("B");lcd.write((byte)3);lcd.print(".");  lcd.print((int)DHT11.humidity+HUM_CORR);  lcd.print("% "); 	// Напишем влажность
 }
 
 // Вывод времени относительно времени работы
@@ -101,8 +107,5 @@ void TimePrint(int Col, int Row)
 	Separator = !Separator;
 	if (time/60%60<10) { lcd.print ("0"); }
 	lcd.print ((time/60)%60);
-	/*lcd.print (":");
-	if (time%60<10) { lcd.print ("0"); }
-	lcd.print (time%60);*/
 }
 
