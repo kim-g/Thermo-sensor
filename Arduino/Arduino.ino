@@ -27,8 +27,12 @@ byte cube_Char[8] = {0b00100,0b01010,0b10001,0b11011,0b10101,0b10101,0b01010,0b0
 int LastUpdateTemp = -10000;
 int LastUpdateTime = -10000;
 bool Separator = true;
+char InStr[32]; // Пришедший символ
+
+
 // Инициализация прибора
 void setup() {
+  Serial.begin(9600); //Активируем передачу данных по COM порту через USB и указываем скорость передачи в бодах
   lcd.begin(16, 2);	// Инициализация
   lcd.clear();		// Очищаем экран
   lcd.createChar(0, tempChar);		// Добавим знак градуса
@@ -66,7 +70,20 @@ void loop()
  {
     LastUpdateTime = CurTime;
     TimePrint(0,1);
-  }
+ }
+
+ byte Pos = 0;
+ if (Serial.available() > 0)
+ {
+   for (byte i=0; i<32; i++) InStr[i]=' ';
+   while (Serial.available() > 0)
+   {
+     InStr[Pos] = Serial.read();
+     Pos++;
+     if (Pos>31) break;
+   }
+   Serial.println(InStr);
+ }
 		
 	delay(LOOP_DELAY);
 }
