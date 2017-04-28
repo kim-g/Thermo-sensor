@@ -4,7 +4,9 @@
 #define DHT11PIN 2				// Вывод для сенсора
 #define TEMP_CORR -1        		// Корректировка датчика температуры
 #define HUM_CORR 28        		// Корректировка датчика влажности
-#define UPDATE_T 5000      		// Количество млисекунд между обновлениями датчиков
+#define UPDATE_Temp 5000      		// Количество млисекунд между обновлениями датчиков
+#define UPDATE_Time 1000          // Количество млисекунд между обновлениями индикатора времени
+#define LOOP_DELAY 100            // Время задержки в цикле
 #define SECONDS_IN_DAY 86400	// Количество секунд в сутках
 dht11 DHT11;					// Сенсор
 
@@ -22,7 +24,8 @@ byte Y_Char[8] = {0b10001,0b10001,0b10001,0b01111,0b00001,0b10001,0b01110,0b0000
 byte r_Char[8] = {0b00000,0b00000,0b11110,0b10001,0b10001,0b11110,0b10000,0b10000};
 byte cube_Char[8] = {0b00100,0b01010,0b10001,0b11011,0b10101,0b10101,0b01010,0b00100};
 
-int LastUpdate = -10000;
+int LastUpdateTemp = -10000;
+int LastUpdateTime = -10000;
 bool Separator = true;
 // Инициализация прибора
 void setup() {
@@ -42,28 +45,35 @@ void setup() {
   lcd.print(" ");lcd.write((byte)7);lcd.print(" ");lcd.write((byte)4);lcd.print("OC ");lcd.write((byte)5);lcd.write((byte)6);lcd.print("O PAH  ");			//Выведем приветствие
   delay(5000);						// Подождём 2 секунды
   lcd.clear();						// Очищаем экран
+  Temp_Hum_Show(0,0);
+  LastUpdateTemp = millis();
+  TimePrint(0,1);
+  LastUpdateTime = millis();
 }
 
 //	Цикл работы
 void loop() 
 {
-    int CurTime = millis();
-	if (CurTime - LastUpdate > UPDATE_T)
+  int CurTime = millis();
+	if (CurTime - LastUpdateTemp > UPDATE_Temp)
 	{
-		LastUpdate = CurTime;
+		LastUpdateTemp = CurTime;
 		Temp_Hum_Show(0,0);
 	}
 	
 	//Вывод времени
-	TimePrint(0,1);
-	
-	delay(1000);
+ if (CurTime - LastUpdateTime > UPDATE_Time)
+ {
+    LastUpdateTime = CurTime;
+    TimePrint(0,1);
+  }
+		
+	delay(LOOP_DELAY);
 }
 
 // Вывод влажности и температуры
 void Temp_Hum_Show(int Col, int Row)
 {
-	// Очистим экран
     int chk = DHT11.read(DHT11PIN);	// Считаем значение
  
     lcd.setCursor(0,0); // Установим курсор на начало первой строки
@@ -90,7 +100,6 @@ void Temp_Hum_Show(int Col, int Row)
             break;
     }
 
-    lcd.clear();	// Очищаем экран
 	lcd.setCursor(Col, Row); // Установим курсор на начало первой строки
 	lcd.print("Te");lcd.write((byte)1);lcd.write((byte)2);lcd.print(" "); lcd.print((int)DHT11.temperature+TEMP_CORR); lcd.write((byte)0); lcd.print(" ");	// Напишем температуру
 
