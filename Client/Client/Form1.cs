@@ -14,106 +14,32 @@ namespace Client
 {
     public partial class Form1 : Form
     {
-        System.Timers.Timer aTimer;
-        SerialPort currentPort;
-        private delegate void updateDelegate(string txt);
-
         public Form1()
         {
             InitializeComponent();
+            SP.Open();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            bool ArduinoPortFound = false;
-
-            try
-            {
-                string[] ports = SerialPort.GetPortNames();
-                foreach (string port in ports)
-                {
-                    currentPort = new SerialPort(port, 9600);
-                    if (ArduinoDetected())
-                    {
-                        ArduinoPortFound = true;
-                        break;
-                    }
-                    else
-                    {
-                        ArduinoPortFound = false;
-                    }
-                }
-            }
-            catch { }
-
-            if (ArduinoPortFound == false) return;
-            System.Threading.Thread.Sleep(500); // немного подождем
-
-            currentPort.BaudRate = 9600;
-            currentPort.DtrEnable = true;
-            currentPort.ReadTimeout = 1000;
-            try
-            {
-                currentPort.Open();
-            }
-            catch { }
-
-            aTimer = new System.Timers.Timer(1000);
-            aTimer.Elapsed += OnTimedEvent;
-            aTimer.AutoReset = true;
-            aTimer.Enabled = true;
         }
 
-        private bool ArduinoDetected()
-        {
-            try
-            {
-                currentPort.Open();
-                System.Threading.Thread.Sleep(1000);
-                // небольшая пауза, ведь SerialPort не терпит суеты
-
-                string returnMessage = currentPort.ReadLine();
-                currentPort.Close();
-
-                // необходимо чтобы void loop() в скетче содержал код Serial.println("Info from Arduino");
-                if (returnMessage.Contains("Info from Arduino"))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
 
         private void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
-            if (!currentPort.IsOpen) return;
-            try // так как после закрытия окна таймер еще может выполнится или предел ожидания может быть превышен
-            {
-                // удалим накопившееся в буфере
-                currentPort.DiscardInBuffer();
-                // считаем последнее значение 
-                string strFromPort = currentPort.ReadLine();
-                label1.BeginInvoke(new updateDelegate(updateTextBox), strFromPort);
-            }
-            catch { }
         }
 
         private void updateTextBox(string txt)
         {
-            label1.Text = txt;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            aTimer.Enabled = false;
-            currentPort.Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            SP.WriteLine("T" + (char)(DateTime.Now.Year - 2000)+ (char)DateTime.Now.Month+ (char)DateTime.Now.Day + (char)DateTime.Now.Hour + (char)DateTime.Now.Minute + (char)DateTime.Now.Second);
         }
     }
 }

@@ -27,7 +27,8 @@ byte cube_Char[8] = {0b00100,0b01010,0b10001,0b11011,0b10101,0b10101,0b01010,0b0
 int LastUpdateTemp = -10000;
 int LastUpdateTime = -10000;
 bool Separator = true;
-char InStr[32]; // Пришедший символ
+byte Date[6] = {17,04,29,12,30,00};
+unsigned long TimeDel = 0;
 
 
 // Инициализация прибора
@@ -72,17 +73,21 @@ void loop()
     TimePrint(0,1);
  }
 
- byte Pos = 0;
+ // Приём данных по COM
  if (Serial.available() > 0)
  {
-   for (byte i=0; i<32; i++) InStr[i]=' ';
-   while (Serial.available() > 0)
+   // Установка даты/времени
+   if (Serial.read() == 'T')  // Пришедший символ
    {
-     InStr[Pos] = Serial.read();
-     Pos++;
-     if (Pos>31) break;
+     byte Pos = 0;
+     while (Serial.available() > 0) //Считаем то, что нам надо
+     {
+       Date[Pos] = (byte)Serial.read();
+       Pos++;
+       if (Pos>6) break;
+     }
+     TimeDel = millis();
    }
-   Serial.println(InStr);
  }
 		
 	delay(LOOP_DELAY);
@@ -127,19 +132,20 @@ void Temp_Hum_Show(int Col, int Row)
 // Вывод времени относительно времени работы
 void TimePrint(int Col, int Row)
 {
-	int DateTime = millis()/1000; //Получаем время работы прибора
-	int Date = DateTime / SECONDS_IN_DAY; // Получим количество дней
-	
 	lcd.setCursor(Col,Row); // Установим курсор на начало первой строки
-	lcd.print ("26.04.17 ");
+	if (Date[2]<10) { lcd.print ("0"); } lcd.print (Date[2]); lcd.print ("."); // Число
+  if (Date[1]<10) { lcd.print ("0"); } lcd.print (Date[1]); lcd.print ("."); // Месяц
+  if (Date[0]<10) { lcd.print ("0"); } lcd.print (Date[0]);                  // Год
 	
 	lcd.setCursor(Col+11,Row); // Установим курсор на начало первой строки
-	int time=DateTime%(SECONDS_IN_DAY);	//24*60*60
-	if (time/60/60<10) { lcd.print ("0"); }
-	lcd.print (time/60/60);
+	int time=((millis()-TimeDel)/1000)%(SECONDS_IN_DAY);	//24*60*60
+	if ((time/60/60 + Date[3])<10) { lcd.print ("0"); }
+	lcd.print (time/60/60 + Date[3]);
 	if (Separator) lcd.print (":"); else lcd.print (" ");
 	Separator = !Separator;
-	if (time/60%60<10) { lcd.print ("0"); }
-	lcd.print ((time/60)%60);
+	if ((time/60%60 + Date[4])<10) { lcd.print ("0"); }
+	lcd.print ((time/60)%60 + Date[4]);
 }
+
+
 
