@@ -136,15 +136,26 @@ void TimePrint(int Col, int Row)
 	if (Date[2]<10) { lcd.print ("0"); } lcd.print (Date[2]); lcd.print ("."); // Число
   if (Date[1]<10) { lcd.print ("0"); } lcd.print (Date[1]); lcd.print ("."); // Месяц
   if (Date[0]<10) { lcd.print ("0"); } lcd.print (Date[0]);                  // Год
-	
+
+
+  // Вычисляем время
+  int time=((millis()-TimeDel)/1000)%(SECONDS_IN_DAY);  //24*60*60
+  byte Hour = Date[3] + time/60/60;
+  byte Minutes = Date[4] + time/60%60;
+  byte Seconds = Date[5] + time%60;
+  Minutes += Seconds/60;
+  Seconds = Seconds%60;
+  Hour += Minutes/60;
+  Minutes = Minutes % 60;
+
+  // И нарисуем его
 	lcd.setCursor(Col+11,Row); // Установим курсор на начало первой строки
-	int time=((millis()-TimeDel)/1000)%(SECONDS_IN_DAY);	//24*60*60
-	if ((time/60/60 + Date[3])<10) { lcd.print ("0"); }
-	lcd.print (time/60/60 + Date[3]);
+	if (Hour<10) { lcd.print ("0"); }
+	lcd.print (Hour);
 	if (Separator) lcd.print (":"); else lcd.print (" ");
 	Separator = !Separator;
-	if ((time/60%60 + Date[4])<10) { lcd.print ("0"); }
-	lcd.print ((time/60)%60 + Date[4]);
+	if (Minutes<10) { lcd.print ("0"); }
+	lcd.print (Minutes);
 }
 
 
