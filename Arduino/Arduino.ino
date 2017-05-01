@@ -76,8 +76,9 @@ void loop()
  // Приём данных по COM
  if (Serial.available() > 0)
  {
+   char FL = Serial.read();
    // Установка даты/времени
-   if (Serial.read() == 'T')  // Пришедший символ
+   if (FL == 'T')  // Пришедший символ
    {
      byte Pos = 0;
      while (Serial.available() > 0) //Считаем то, что нам надо
@@ -87,6 +88,14 @@ void loop()
        if (Pos>6) break;
      }
      TimeDel = millis();
+   }
+
+   // Установка даты/времени
+   if (FL == 'G')  // Пришедший символ
+   {
+     Serial.println(DHT11.temperature+TEMP_CORR);
+     Serial.println(';');
+     Serial.println(DHT11.humidity+HUM_CORR);
    }
  }
 		
