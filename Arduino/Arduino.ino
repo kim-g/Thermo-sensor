@@ -1,3 +1,10 @@
+#include <DS1307RTC.h>
+
+#include <Wire.h>
+
+#include <Time.h>
+#include <TimeLib.h>
+
 #include "dht11.h"				// Добавим библиотеку для работы с сенсором
 #include <LiquidCrystal.h>		// Добавим библиотеку для работы с экраном
 
@@ -88,6 +95,13 @@ void loop()
        if (Pos>6) break;
      }
      TimeDel = millis();
+
+       setSyncProvider(RTC.get);
+      //Устанавливаем время в формате:
+      //Часы, минуты, секунды, день, месяц, год
+      setTime(23,57,0,23,05,2017);
+      //Применяем:
+      RTC.set(now());
    }
 
    // Установка даты/времени
@@ -141,30 +155,19 @@ void Temp_Hum_Show(int Col, int Row)
 // Вывод времени относительно времени работы
 void TimePrint(int Col, int Row)
 {
-	lcd.setCursor(Col,Row); // Установим курсор на начало первой строки
-	if (Date[2]<10) { lcd.print ("0"); } lcd.print (Date[2]); lcd.print ("."); // Число
-  if (Date[1]<10) { lcd.print ("0"); } lcd.print (Date[1]); lcd.print ("."); // Месяц
-  if (Date[0]<10) { lcd.print ("0"); } lcd.print (Date[0]);                  // Год
+  tmElements_t tm;
+  if (RTC.read(tm))
+  {
+    lcd.setCursor(Col,Row);
+    if (tm.Day<10) { lcd.print ("0"); } lcd.print(tm.Day);lcd.print (".");
+    if (tm.Month<10) { lcd.print ("0"); } lcd.print(tm.Month);lcd.print (".");
+    if (tmYearToCalendar(tm.Year)<10) { lcd.print ("0"); } lcd.print(tmYearToCalendar(tm.Year));
 
-
-  // Вычисляем время
-  int time=((millis()-TimeDel)/1000)%(SECONDS_IN_DAY);  //24*60*60
-  byte Hour = Date[3] + time/60/60;
-  byte Minutes = Date[4] + time/60%60;
-  byte Seconds = Date[5] + time%60;
-  Minutes += Seconds/60;
-  Seconds = Seconds%60;
-  Hour += Minutes/60;
-  Minutes = Minutes % 60;
-
-  // И нарисуем его
-	lcd.setCursor(Col+11,Row); // Установим курсор на начало первой строки
-	if (Hour<10) { lcd.print ("0"); }
-	lcd.print (Hour);
-	if (Separator) lcd.print (":"); else lcd.print (" ");
-	Separator = !Separator;
-	if (Minutes<10) { lcd.print ("0"); }
-	lcd.print (Minutes);
+    lcd.setCursor(Col+11,Row); // Установим курсор на начало первой строки
+    if (tm.Hour<10) { lcd.print ("0"); } lcd.print(tm.Hour);
+    if (tm.Second %2 > 0) lcd.print (":"); else lcd.print (" ");
+    if (tm.Minute<10) { lcd.print ("0"); } lcd.print(tm.Minute);
+  }
 }
 
 
